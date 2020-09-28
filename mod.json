@@ -6,6 +6,7 @@
 	"HasWebUI": true,
 	"HasVeniceEXT": true,
 	"Dependencies": {
-		"veniceext": "^1.0.0"
+		"veniceext": "^1.0.0",
+		"battlerecorder": "^1.0.0"
 	}
 }
