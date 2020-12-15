@@ -51,7 +51,7 @@ local function exitStatePostRound()
 	broadcastRoundInfo()
 
 	-- Restart level.
-	--RCON:SendCommand('mapList.restartRound')
+	RCON:SendCommand('mapList.restartRound')
 end
 
 local function updateRoundActive(dt)
@@ -74,14 +74,14 @@ local function updateRoundActive(dt)
 	-- Broadcast round info to all players every 5 seconds.
 	if roundUpdateTimer <= 0.0 then
 		if roundState == RoundState.PreRound then
-			--ChatManager:SendMessage('First infection will happen in ' .. tostring(roundTimer) .. ' seconds.')
+			ChatManager:SendMessage('First infection will happen in ' .. tostring(roundTimer) .. ' seconds.')
 		elseif roundState == RoundState.InRound then
-			---ChatManager:SendMessage('Game ends in ' .. tostring(roundTimer) .. ' seconds.')
+			ChatManager:SendMessage('Game ends in ' .. tostring(roundTimer) .. ' seconds.')
 		elseif roundState == RoundState.Extraction then
 			if roundTimer > Config.ExtractionTime / 2.0 then
-				--ChatManager:SendMessage('Extraction chopper arrives in ' .. tostring(roundTimer) .. ' seconds.')
+				ChatManager:SendMessage('Extraction chopper arrives in ' .. tostring(roundTimer) .. ' seconds.')
 			else
-				--ChatManager:SendMessage('Extraction chopper departs in ' .. tostring(roundTimer) .. ' seconds.')
+				ChatManager:SendMessage('Extraction chopper departs in ' .. tostring(roundTimer) .. ' seconds.')
 			end
 		end
 
@@ -121,7 +121,7 @@ Events:Subscribe('Level:LoadResources', function()
 end)
 
 function infectPlayer(player)
-	--ChatManager:SendMessage('Player ' .. player.name .. ' was infected!')
+	ChatManager:SendMessage('Player ' .. player.name .. ' was infected!')
 
 	-- Spawn the infected player.
 	spawnInfected(player, player.soldier.transform.trans)
@@ -139,17 +139,18 @@ end
 function startInfection()
 	local playerInfected = false
 
-	infectPlayer(PlayerManager:GetPlayerByName('NoFaTe'))
+	math.randomseed(SharedUtils:GetTimeMS())
 
-	--[[math.randomseed(SharedUtils:GetTimeMS())
+	playerCount = #PlayerManager:GetPlayers()
+	infectionChance = 1.0 / playerCount
 
 	while not playerInfected do
 		for _, player in pairs(PlayerManager:GetPlayers()) do
-			if math.random() > 0.9 then
+			if math.random() <= infectionChance then
 				infectPlayer(player)
 				playerInfected = true
 				break
 			end
 		end
-	end]]
+	end
 end

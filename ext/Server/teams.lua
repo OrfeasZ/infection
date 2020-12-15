@@ -46,8 +46,9 @@ end
 
 NetEvents:Subscribe(NetMessage.C2S_CLIENT_READY, function(player)
 	spawnHuman(player)
+	readyPlayers = readyPlayers + 1
 end)
 
 NetEvents:Subscribe('ready', function(player)
-	readyPlayers = readyPlayers + 1
+	--readyPlayers = readyPlayers + 1
 end)

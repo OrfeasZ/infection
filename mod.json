@@ -7,6 +7,6 @@
 	"HasVeniceEXT": true,
 	"Dependencies": {
 		"veniceext": "^1.0.0",
-		"battlerecorder": "^1.0.0"
+		"battlerecorder": "^0.0.1-alpha"
 	}
 }

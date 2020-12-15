@@ -5,6 +5,7 @@ require('visuals')
 require('infected-vision')
 require('extraction')
 
+--[[
 Console:Register('chopper', 'Spawns a chopper.', function(args)
 	NetEvents:Send('chopper')
 end)
@@ -13,7 +14,7 @@ Console:Register('extract', 'Extract.', function(args)
 	NetEvents:Send('extract')
 end)
 
---[[Console:Register('infect', 'Infects a player.', function(args)
+Console:Register('infect', 'Infects a player.', function(args)
 	if #args ~= 1 then
 		return 'Usage: infection.infect <player name>'
 	end
@@ -78,11 +79,12 @@ end)
 
 Console:Register('bot', 'Spawns a bot.', function(args)
 	NetEvents:Send('bot')
-end)]]
+end)
 
 Console:Register('ready', 'Ready.', function(args)
 	NetEvents:Send('ready')
 end)
+]]
 
 Events:Subscribe('Extension:Loaded', function()
 	WebUI:Init()

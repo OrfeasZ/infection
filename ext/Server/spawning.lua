@@ -113,7 +113,7 @@ function spawnHuman(player)
 
 	local mpSoldierBp = ResourceManager:SearchForDataContainer('Characters/Soldiers/MpSoldier')
 
-    -- TODO: Select spawn point randomly from predetermined list.
+    -- Select spawn point randomly from predetermined list.
 	local spawnTransform = LinearTransform()
 	spawnTransform.trans = startingSpawns[MathUtils:GetRandomInt(1, #startingSpawns)]
 
