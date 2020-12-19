@@ -2,11 +2,11 @@
 	"Name": "Infection",
 	"Authors": [ "NoFaTe" ],
 	"Description": "Zombies 'n Stuff",
-	"Version": "0.0.1-alpha",
+	"Version": "0.0.2-alpha",
 	"HasWebUI": true,
 	"HasVeniceEXT": true,
 	"Dependencies": {
-		"veniceext": "^1.0.0",
-		"battlerecorder": "^0.0.1-alpha"
+		"veniceext": "^1.0.6",
+		"battlerecorder": "^0.0.2-alpha"
 	}
 }
