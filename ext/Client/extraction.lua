@@ -44,3 +44,11 @@ Events:Subscribe('Extension:Unloading', function()
 
 	spawnedFlares = {}
 end)
+
+Events:Subscribe('Level:Destroy', function()
+	for _, flare in pairs(spawnedFlares) do
+		flare:Destroy()
+	end
+
+	spawnedFlares = {}
+end)

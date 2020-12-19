@@ -4,6 +4,7 @@ require('__shared/round-state')
 require('visuals')
 require('infected-vision')
 require('extraction')
+require('endcam')
 
 --[[
 Console:Register('chopper', 'Spawns a chopper.', function(args)
@@ -84,6 +85,12 @@ end)
 Console:Register('ready', 'Ready.', function(args)
 	NetEvents:Send('ready')
 end)
+
+NetEvents:Subscribe('human', function(player)
+	if player == PlayerManager:GetLocalPlayer().name then
+		removeInfectedVision()
+	end
+end)
 ]]
 
 Events:Subscribe('Extension:Loaded', function()
@@ -99,34 +106,89 @@ Events:Subscribe('Extension:Loaded', function()
     Events:Subscribe('Engine:Message', function(message)
         if message.type == MessageType.CoreEnteredIngameMessage then
             print('Now ingame. Notifying server that we\'re ready.')
+			WebUI:ExecuteJS('showUI();')
             NetEvents:SendLocal(NetMessage.C2S_CLIENT_READY)
         end
     end)
 end)
 
-NetEvents:Subscribe('human', function(player)
-	if player == PlayerManager:GetLocalPlayer().name then
-		removeInfectedVision()
+local lastHumanCount = 0
+
+local function updateHumanCount()
+	local humanCount = 0
+
+	for _, player in pairs(PlayerManager:GetPlayersByTeam(TeamId.Team1)) do
+		-- Ignore bots
+		if player.onlineId ~= 0 then
+			humanCount = humanCount + 1
+		end
 	end
-end)
 
-NetEvents:Subscribe(NetMessage.S2C_PLAYER_INFECTED, function(player)
-	print('Player ' .. player .. ' was infected.')
+	if humanCount == lastHumanCount then
+		return
+	end
 
-	if player == PlayerManager:GetLocalPlayer().name then
+	lastHumanCount = humanCount
+
+	WebUI:ExecuteJS('setHumanCount(' .. tostring(humanCount) .. ');')
+end
+
+NetEvents:Subscribe(NetMessage.S2C_PLAYER_INFECTED, function(onlineId)
+	if onlineId == PlayerManager:GetLocalPlayer().onlineId then
 		setInfectedVision()
 	end
+
+	updateHumanCount()
 end)
 
 NetEvents:Subscribe(NetMessage.S2C_ROUND_INFO, function(roundInfo)
-	print(roundInfo)
+	WebUI:ExecuteJS('setRoundInfo(' .. tostring(roundInfo.roundState) .. ', ' .. tostring(roundInfo.roundTime) .. ');')
 end)
 
 NetEvents:Subscribe(NetMessage.S2C_GAME_ENDED, function(survivors)
-	-- TODO: Show some UI nonsense
-	for _, id in pairs(survivors) do
-		local player = PlayerManager:GetPlayerById(id)
+	local survivorNames = {}
 
-		print('Player ' .. player.name .. ' has survived.')
+	for _, onlineId in pairs(survivors) do
+		local player = PlayerManager:GetPlayerByOnlineId(onlineId)
+
+		if player ~= nil then
+			table.insert(survivorNames, player.name)
+		end
 	end
+
+	if #survivorNames == 0 then
+		WebUI:ExecuteJS('gameEnded();')
+	else
+		WebUI:ExecuteJS('gameEnded(' .. json.encode(survivorNames) .. ');')
+		showEndcam()
+	end
+end)
+
+Events:Subscribe('Level:Destroy', function()
+	print('Level getting destroyed. Entering idle state.')
+	removeInfectedVision()
+	WebUI:ExecuteJS('hideUI();')
+end)
+
+-- Update health and human count every 100ms.
+local updateTimer = 0.0
+local lastHealth = 0
+
+Events:Subscribe('Engine:Update', function(dt)
+	updateTimer = updateTimer + dt
+
+	if updateTimer < 0.1 then
+		return
+	end
+
+	updateTimer = 0.0
+
+	local player = PlayerManager:GetLocalPlayer()
+
+	if player ~= nil and player.soldier ~= nil and player.soldier.health ~= lastHealth then
+		lastHealth = player.soldier.health
+		WebUI:ExecuteJS('setHealth(' .. tostring(lastHealth) .. ');')
+	end
+
+	updateHumanCount()
 end)

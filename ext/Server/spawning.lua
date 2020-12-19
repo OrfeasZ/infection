@@ -1,53 +1,18 @@
-local startingSpawns = {
-	Vec3(8.411133, 174.783981, 12.074219),
-	Vec3(4.420898, 174.783981, 12.619141),
-	Vec3(0.973633, 174.783981, 12.679688),
-	Vec3(0.604492, 174.783981, 15.330078),
-	Vec3(0.346680, 174.783981, 17.389648),
-	Vec3(-0.537109, 174.783981, 19.846680),
-	Vec3(3.312500, 174.783981, 21.451172),
-	Vec3(6.285156, 174.783981, 19.385742),
-	Vec3(8.267578, 174.783981, 16.473633),
-	Vec3(17.282227, 174.778122, 16.716797),
-	Vec3(18.734375, 174.783981, 13.456055),
-	Vec3(21.324219, 174.783981, 17.725586),
-	Vec3(20.374023, 174.753708, 21.375977),
-	Vec3(20.301758, 174.798630, 26.605469),
-	Vec3(17.233398, 174.798630, 25.684570),
-	Vec3(14.247070, 174.806442, 25.782227),
-	Vec3(12.339844, 174.806442, 27.223633),
-	Vec3(9.010742, 174.806442, 27.239258),
-	Vec3(19.381836, 174.829880, 30.116211),
-	Vec3(25.473633, 174.826950, 31.007813),
-	Vec3(31.248047, 174.783981, 22.708008),
-	Vec3(34.916016, 174.782059, 22.880859),
-	Vec3(24.441406, 175.066238, -1.053711),
-	Vec3(8.951172, 174.792770, 6.980469),
-	Vec3(5.687500, 174.792770, 7.344727),
-	Vec3(9.173828, 174.792770, 1.340820),
-	Vec3(-8.776367, 174.783981, 24.555664),
-	Vec3(-8.310547, 174.842575, 10.413086),
-	Vec3(3.417969, 177.561325, 31.780273),
-	Vec3(16.948242, 174.761520, 1.848633),
-}
+local infectedSpawns = nil
+local startingSpawns = nil
 
-local infectedSpawns = {
-	Vec3(9.149414, 174.783005, 17.848633),
-	Vec3(11.160156, 174.839645, -32.341797),
-	Vec3(1.242188, 176.051559, -73.188477),
-	Vec3(-23.529297, 174.924606, -20.969727),
-	Vec3(-39.224609, 175.347458, -0.551758),
-	Vec3(-107.467789, 176.167770, 19.810528),
-	Vec3(-98.983398, 174.822067, -19.773438),
-	Vec3(-85.648438, 177.477341, -57.364258),
-	Vec3(-107.502930, 169.815231, -73.352539),
-	Vec3(-77.094727, 175.175583, -87.832031),
-	Vec3(-25.852539, 174.923630, -95.207031),
-	Vec3(-56.777344, 178.786911, -26.558594),
-	Vec3(-74.102539, 177.508591, -2.583984),
-	Vec3(-100.847656, 177.510544, 36.534180),
-	Vec3(-63.958984, 175.157028, 40.089844),
-}
+Events:Subscribe('Level:LoadResources', function(levelName)
+	infectedSpawns = nil
+	startingSpawns = nil
+
+	if not g_IsLevelSupported then
+		return
+	end
+
+	local levelData = getLevelData(levelName)
+	infectedSpawns = levelData.infectedSpawns
+	startingSpawns = levelData.startingSpawns
+end)
 
 function spawnInfected(player, position)
     print('Spawning infected ' .. player.name)
@@ -178,12 +143,16 @@ function spawnHuman(player)
 
 	player.teamId = TeamId.Team1
 
-	NetEvents:BroadcastLocal('human', player.name)
+	--NetEvents:BroadcastLocal('human', player.name)
 end
 
 local spawnCheckTimer = 0.0
 
 Events:Subscribe('Engine:Update', function(deltaTime)
+	if not g_IsLevelSupported then
+		return
+	end
+
 	spawnCheckTimer = spawnCheckTimer + deltaTime
 
 	if spawnCheckTimer >= 0.25 then

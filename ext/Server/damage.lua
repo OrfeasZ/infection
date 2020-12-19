@@ -1,6 +1,16 @@
 Hooks:Install('Soldier:Damage', 100, function(hook, soldier, info, giverInfo)
+	if not g_IsLevelSupported then
+		return
+	end
+
 	-- Don't modify healing damage.
 	if info.damage < 0 then
+		return
+	end
+
+	-- Don't allow damage during pre-round.
+	if roundState == RoundState.Idle or roundState == RoundState.PreRound or roundState == RoundState.PostRound then
+		hook:Return()
 		return
 	end
 
@@ -12,6 +22,11 @@ Hooks:Install('Soldier:Damage', 100, function(hook, soldier, info, giverInfo)
 			hook:Return()
 		end
 
+		return
+	end
+
+	if getHumanCount() == 0 then
+		hook:Return()
 		return
 	end
 
@@ -31,6 +46,10 @@ Hooks:Install('Soldier:Damage', 100, function(hook, soldier, info, giverInfo)
 
 	if isHeadshot then
 		finalDamage = finalDamage * headshotMultiplier
+	end
+
+	if finalDamage > soldier.health then
+		finalDamage = soldier.health
 	end
 
 	info.damage = finalDamage

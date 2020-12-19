@@ -27,8 +27,6 @@ local function patchCharacterLighting(instance)
 
 	lighting.characterLightEnable = false
 	lighting.topLight = Vec3(0, 0, 0)
-
-	print('Patching characterlight')
 end
 
 local function patchColorCorrection(instance)
@@ -44,8 +42,6 @@ local function patchColorCorrection(instance)
 	cc.saturation = Vec3(0.7, 0.7, 0.74)
 	cc.colorGradingEnable = false
 	cc.enable = false
-
-	print('Patching cc')
 end
 
 local function patchSky(instance)
@@ -61,8 +57,6 @@ local function patchSky(instance)
 	sky.sunScale = 0.005
 	sky.staticEnvmapScale = 0
 	sky.sunScale = 19
-
-	print('Patching sky')
 end
 
 local function patchOutdoorLight(instance)
@@ -78,8 +72,6 @@ local function patchOutdoorLight(instance)
 	outdoorLight.groundColor = Vec3(0.008, 0.008, 0.010)
 	outdoorLight.sunSpecularScale = 0.452
 	outdoorLight.skyEnvmapShadowScale = 0.191
-
-	print('Patching outdoorLight')
 end
 
 local function patchEnlighten(instance)
@@ -91,8 +83,6 @@ local function patchEnlighten(instance)
 	enlighten:MakeWritable()
 
 	enlighten.enable = false
-
-	print('Patching enlighten')
 end
 
 local function patchFog(instance)
@@ -108,8 +98,6 @@ local function patchFog(instance)
 
 	fog.enable = false
 	fog.fogColorEnable = false
-
-	print('Patching fog')
 end
 
 local function patchSunFlare(instance)
@@ -126,8 +114,6 @@ local function patchSunFlare(instance)
 	sunFlare.element3Enable = false
 	sunFlare.element4Enable = false
 	sunFlare.element5Enable = false
-
-	print('Patching sunflare')
 end
 
 local function patchFlashLight(instance)
@@ -146,11 +132,13 @@ local function patchFlashLight(instance)
 	spotLight.frustumFov = 50
 	spotLight.castShadowsEnable = true
 	spotLight.castShadowsMinLevel = QualityLevel.QualityLevel_Low
-
-	print('Patching flashlight')
 end
 
 Events:Subscribe('Partition:Loaded', function(partition)
+	if not g_IsLevelSupported then
+		return
+	end
+
 	for _, instance in pairs(partition.instances) do
 		if instance.instanceGuid == colorCorrectionGuid then
 			patchColorCorrection(instance)
@@ -174,16 +162,16 @@ Events:Subscribe('Partition:Loaded', function(partition)
 	end
 end)
 
-Events:Subscribe('Extension:Loaded', function()
-	patchColorCorrection(ResourceManager:SearchForInstanceByGuid(colorCorrectionGuid))
-	patchSky(ResourceManager:SearchForInstanceByGuid(skyGuid))
-	patchOutdoorLight(ResourceManager:SearchForInstanceByGuid(outdoorLightGuid))
-	patchEnlighten(ResourceManager:SearchForInstanceByGuid(enlightenGuid))
-	patchFog(ResourceManager:SearchForInstanceByGuid(fogGuid))
-	patchSunFlare(ResourceManager:SearchForInstanceByGuid(sunFlareGuid))
-	patchFlashLight(ResourceManager:SearchForInstanceByGuid(flashLight1PGuid))
-	patchFlashLight(ResourceManager:SearchForInstanceByGuid(flashLight3PGuid))
-	patchCharacterLighting(ResourceManager:SearchForInstanceByGuid(characterLightingGuid))
 
-	VisualEnvironmentManager:SetDirty(true)
+Hooks:Install('UI:PushScreen', 100, function(hook, screen, priority, parentGraph, stateNodeGuid)
+	if not g_IsLevelSupported then
+		return
+	end
+
+	local asset = UIScreenAsset(screen)
+
+	if asset.name == 'UI/Flow/Screen/HudTDMScreen' then
+		hook:Return(nil)
+		return
+	end
 end)

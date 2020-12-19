@@ -17,6 +17,19 @@ local function broadcastRoundInfo()
 	})
 end
 
+local function enterStateIdle()
+	roundTimer = 0
+	roundState = RoundState.Idle
+
+	broadcastRoundInfo()
+
+	for _, player in pairs(PlayerManager:GetPlayers()) do
+		if player.teamId == TeamId.Team2 then
+			player.teamId = TeamId.Team1
+		end
+	end
+end
+
 local function enterStateInRound()
 	roundTimer = Config.TimeLimit
 	roundState = RoundState.InRound
@@ -54,6 +67,29 @@ local function exitStatePostRound()
 	RCON:SendCommand('mapList.restartRound')
 end
 
+local extractionUpdateTimer = 0.0
+
+local function updateExtraction(dt)
+	-- If we're in the extraction phase and the chopper has arrived (time <= extraction time / 2)
+	-- we check every 0.5s if all alive humans are in the extraction point. If they are, we automatically
+	-- end the game.
+	extractionUpdateTimer = extractionUpdateTimer + dt
+
+	if extractionUpdateTimer < 0.5 then
+		return
+	end
+
+	extractionUpdateTimer = 0.0
+
+	if roundTimer > Config.ExtractionTime / 2.0 then
+		return
+	end
+
+	if #getHumansInExtractionZone() == getHumanCount() then
+		enterStatePostRound()
+	end
+end
+
 local function updateRoundActive(dt)
 	roundTimer = roundTimer - dt
 	roundUpdateTimer = roundUpdateTimer - dt
@@ -71,20 +107,12 @@ local function updateRoundActive(dt)
 		end
 	end
 
+	if roundState == RoundState.Extraction then
+		updateExtraction(dt)
+	end
+
 	-- Broadcast round info to all players every 5 seconds.
 	if roundUpdateTimer <= 0.0 then
-		if roundState == RoundState.PreRound then
-			ChatManager:SendMessage('First infection will happen in ' .. tostring(roundTimer) .. ' seconds.')
-		elseif roundState == RoundState.InRound then
-			ChatManager:SendMessage('Game ends in ' .. tostring(roundTimer) .. ' seconds.')
-		elseif roundState == RoundState.Extraction then
-			if roundTimer > Config.ExtractionTime / 2.0 then
-				ChatManager:SendMessage('Extraction chopper arrives in ' .. tostring(roundTimer) .. ' seconds.')
-			else
-				ChatManager:SendMessage('Extraction chopper departs in ' .. tostring(roundTimer) .. ' seconds.')
-			end
-		end
-
 		broadcastRoundInfo()
 		roundUpdateTimer = 5.0
 	end
@@ -114,6 +142,10 @@ end)
 
 -- Reset round info when a level is loading.
 Events:Subscribe('Level:LoadResources', function()
+	if not g_IsLevelSupported then
+		return
+	end
+
 	roundTimer = 0.0
 	roundState = RoundState.Idle
 
@@ -121,14 +153,11 @@ Events:Subscribe('Level:LoadResources', function()
 end)
 
 function infectPlayer(player)
-	ChatManager:SendMessage('Player ' .. player.name .. ' was infected!')
-
 	-- Spawn the infected player.
 	spawnInfected(player, player.soldier.transform.trans)
 
 	-- Send some notification to the player so we can show custom UI stuff to them.
-	-- TODO: Switch to ID because name is sketchy af.
-	NetEvents:BroadcastLocal(NetMessage.S2C_PLAYER_INFECTED, player.name)
+	NetEvents:BroadcastLocal(NetMessage.S2C_PLAYER_INFECTED, player.onlineId)
 
 	-- If all humans are DED then end the game.
 	if getHumanCount() == 0 then
@@ -154,3 +183,7 @@ function startInfection()
 		end
 	end
 end
+
+Events:Subscribe('Level:Destroy', function()
+	enterStateIdle()
+end)

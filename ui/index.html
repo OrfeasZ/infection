@@ -11,6 +11,10 @@
 			overflow: hidden;
 		}
 
+		body {
+			display: none;
+		}
+
 		#mock-view {
 			position: absolute;
 			left: 0;
@@ -56,6 +60,29 @@
 			}
 		}
 
+		@keyframes highlight {
+			0% {
+				font-size: 2.962962962962963vh;
+				color: #fff;
+			}
+
+			50% {
+				font-size: 4.62962962962963vh;
+				color: #ff0000;
+			}
+
+			100% {
+				font-size: 2.962962962962963vh;
+				color: #fff;
+			}
+		}
+
+		.highlight {
+			animation-name: highlight;
+			animation-duration: 0.5s;
+			animation-iteration-count: 1;
+		}
+
 		#bloody-screen {
 			position: absolute;
 			left: 0;
@@ -85,6 +112,152 @@
 			animation-iteration-count: infinite;
 			display: none;
 		}
+
+		#timer {
+			position: absolute;
+			top: 2%;
+			left: 2%;
+			font-family: Arial, Helvetica, sans-serif;
+			font-size: 1.851851851851852vh;
+			color: #fff;
+			text-transform: uppercase;
+		}
+
+		#game-phase {
+			font-size: 1.666666666666667vh;
+			opacity: 0.65;
+		}
+
+		#timer-time {
+			font-size: 2.962962962962963vh;
+			opacity: 0.8;
+		}
+
+		#player-stats {
+			position: absolute;
+			bottom: 2%;
+			left: 2%;
+			font-family: Arial, Helvetica, sans-serif;
+			font-size: 1.851851851851852vh;
+			color: #fff;
+			text-align: left;
+			opacity: 0.8;
+			text-transform: uppercase;
+		}
+
+		#human-text {
+			font-size: 1.666666666666667vh;
+			opacity: 0.65;
+		}
+
+		#human-count {
+			font-size: 2.962962962962963vh;
+			opacity: 0.8;
+		}
+
+		#health-stats {
+			position: absolute;
+			bottom: 2%;
+			right: 2%;
+			font-family: Arial, Helvetica, sans-serif;
+			font-size: 1.851851851851852vh;
+			color: #fff;
+			text-align: right;
+			opacity: 0.8;
+			text-transform: uppercase;
+		}
+
+		#health-text {
+			font-size: 1.666666666666667vh;
+			opacity: 0.65;
+		}
+
+		#health-amount {
+			font-size: 2.962962962962963vh;
+			opacity: 0.8;
+		}
+
+		#notice {
+			position: absolute;
+			left: 0;
+			right: 0;
+			top: 15%;
+			text-transform: uppercase;
+			color: #fff;
+			font-size: 2.777777777777778vh;
+			font-family: Arial, Helvetica, sans-serif;
+			text-align: center;
+			text-shadow: 0 0 0.462962962962963vh #000;
+			opacity: 0;
+		}
+
+		@keyframes notice {
+			0% {
+				opacity: 0;
+				font-size: 2.777777777777778vh;
+			}
+
+			10% {
+				opacity: 1.0;
+				font-size: 3.148148148148148vh;
+			}
+
+			90% {
+				opacity: 1.0;
+				font-size: 3.148148148148148vh;
+			}
+
+			100% {
+				opacity: 0;
+				font-size: 2.777777777777778vh;
+			}
+		}
+
+		#notice.visible {
+			animation-name: notice;
+			animation-duration: 4s;
+			animation-iteration-count: 1;
+		}
+
+		#game-end-screen {
+			position: absolute;
+			left: 0;
+			right: 0;
+			top: 20%;
+			text-align: center;
+			color: #fff;
+			font-size: 2.777777777777778vh;
+			font-family: Arial, Helvetica, sans-serif;
+			text-align: center;
+			text-shadow: 0 0 0.462962962962963vh #000;
+			display: none;
+		}
+
+		#game-end-text {
+			font-size: 4.62962962962963vh;
+			font-weight: bold;
+			text-transform: uppercase;
+		}
+
+		#survivors {
+			margin-top: 7.407407407407407vh;
+		}
+
+		#survivors h1 {
+			font-size: 3.240740740740741vh;
+			text-transform: uppercase;
+			font-weight: bold;
+		}
+
+		#survivor-table {
+			margin: 0 auto;
+		}
+
+		#survivor-table td {
+			padding: 0.9259259259259259vh 1.851851851851852vh;
+			text-transform: uppercase;
+			font-size: 2.314814814814815vh;
+		}
 	</style>
 </head>
 <body>
@@ -92,23 +265,263 @@
 	<div id="bloody-screen"></div>
 	<div id="veins"></div>
 
+	<div id="timer">
+		<div id="game-phase">WAITING FOR PLAYERS</div>
+		<div id="timer-time"></div>
+	</div>
+
+	<div id="player-stats">
+		<div id="human-count">0</div>
+		<div id="human-text">HUMANS REMAINING</div>
+	</div>
+
+	<div id="health-stats">
+		<div id="health-amount">100%</div>
+		<div id="health-text">HEALTH</div>
+	</div>
+
+	<div id="game-end-screen">
+		<div id="game-end-text">The humans have won</div>
+		<div id="survivors">
+			<h1>Survivors</h1>
+			<table id="survivor-table">
+				<tr>
+					<td>Player1</td>
+					<td>Player2</td>
+					<td>Player3</td>
+				</tr>
+				<tr>
+					<td>Player1</td>
+					<td>Player2</td>
+					<td>Player3</td>
+				</tr>
+				<tr>
+					<td>Player1</td>
+					<td>Player2</td>
+					<td>Player3</td>
+				</tr>
+				<tr>
+					<td>Player1</td>
+					<td>Player2</td>
+					<td>Player3</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+
+	<div id="notice"></div>
+
 	<script type="application/javascript">
 		const mockView = document.getElementById('mock-view');
 		const bloodyScreen = document.getElementById('bloody-screen');
 		const veins = document.getElementById('veins');
+		const gamePhase = document.getElementById('game-phase');
+		const timer = document.getElementById('timer-time');
+		const humanCount = document.getElementById('human-count');
+		const health = document.getElementById('health-amount');
+		const notice = document.getElementById('notice');
+		const gameEndScreen = document.getElementById('game-end-screen');
+		const gameEndText = document.getElementById('game-end-text');
+		const survivorBlock = document.getElementById('survivors');
+		const survivorTable = document.getElementById('survivor-table');
 
-		/*if (!window.WebUI) {
+		var isInfected = false;
+
+		if (!window.WebUI) {
 			mockView.style.display = 'block';
-		}*/
+		}
+
+		window.showUI = () => {
+			document.body.style.display = 'block';
+		};
+
+		window.hideUI = () => {
+			document.body.style.display = 'none';
+		};
 
 		window.showInfectedOverlay = () => {
 			bloodyScreen.style.display = 'block';
 			veins.style.display = 'block';
+			isInfected = true;
+
+			showNotice('You were infected!');
 		};
 
 		window.hideInfectedOverlay = () => {
 			bloodyScreen.style.display = 'none';
 			veins.style.display = 'none';
+			isInfected = false;
+		};
+
+		window.setHealth = (amount) => {
+			health.innerHTML = amount.toFixed(0) + '%';
+		};
+
+		window.setHumanCount = (count) => {
+			humanCount.innerHTML = count.toString();
+
+			humanCount.classList.remove('highlight');
+
+			setTimeout(() => {
+				humanCount.classList.add('highlight');
+			}, 10);
+		};
+
+		window.gameEnded = (survivors) => {
+			if (!survivors) {
+				gameEndText.innerHTML = 'The infected have won';
+				survivorBlock.style.display = 'none';
+			} else {
+				let tableContent = '';
+
+				let survivorRows = [];
+				let i = 0;
+
+				let columnCount = Math.min(survivors.length, 3);
+
+				while (i < survivors.length) {
+					survivorRows.push(survivors.slice(i, i += columnCount));
+				}
+
+				for (let i = survivorRows[survivorRows.length - 1].length; i < columnCount; ++i) {
+					survivorRows[survivorRows.length - 1].push('');
+				}
+
+				for (const row of survivorRows) {
+					tableContent += '<tr>';
+
+					for (const column of row) {
+						tableContent += '<td>';
+						tableContent += column.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+						tableContent += '</td>';
+					}
+
+					tableContent += '</tr>';
+				}
+
+
+				survivorBlock.style.display = 'block';
+				survivorTable.innerHTML = tableContent;
+			}
+
+			gameEndScreen.style.display = 'block';
+		};
+
+		var currentRoundState = 0;
+		var extractionTime = 0;
+
+		window.setRoundInfo = (roundState, roundTime) => {
+			switch (roundState) {
+				case 0:
+					gameEndScreen.style.display = 'none';
+					gamePhase.innerHTML = 'Waiting for players';
+					currentRoundState = roundState;
+					stopTimer();
+					break;
+
+				case 1:
+					gameEndScreen.style.display = 'none';
+					gamePhase.innerHTML = 'First infection in'
+					currentRoundState = roundState;
+					updateTimer(roundTime);
+					break;
+
+				case 2:
+					gamePhase.innerHTML = 'Extraction in'
+					currentRoundState = roundState;
+					updateTimer(roundTime);
+					break;
+
+				case 3:
+					if (currentRoundState !== 3) {
+						extractionTime = Math.round(roundTime) / 2;
+						gamePhase.innerHTML = 'Chopper arrives in'
+
+						if (isInfected) {
+							showNotice('Extraction is starting. Kill all survivors!');
+						} else {
+							showNotice('Chopper is coming. Find the extraction zone!');
+						}
+					}
+
+					currentRoundState = roundState;
+					updateTimer(roundTime);
+					break;
+
+				case 4:
+					gamePhase.innerHTML = 'Game ends in'
+					currentRoundState = roundState;
+					updateTimer(roundTime);
+					break;
+			}
+		};
+
+		window.showNotice = (text) => {
+			notice.innerHTML = text;
+			notice.classList.remove('visible');
+
+			setTimeout(() => {
+				notice.classList.add('visible');
+			}, 10);
+		};
+
+		var timerInterval = null;
+		var remainingTime = null;
+
+		window.stopTimer = () => {
+			if (timerInterval !== null) {
+				clearInterval(timerInterval);
+				timerInterval = null;
+			}
+
+			remainingTime = null;
+			timer.innerHTML = '';
+		};
+
+		window.setTime = (time) => {
+			if (currentRoundState === 3 && time >= extractionTime) {
+				time -= extractionTime;
+			}
+
+			if (time < 0) {
+				stopTimer();
+				return;
+			}
+
+			// Format time.
+			const minutes = Math.floor(time / 60.0);
+			const seconds = Math.floor(time % 60.0);
+
+			const timeStr = minutes.toFixed(0).padStart(2, '0') + ':' + seconds.toFixed(0).padStart(2, '0');
+			timer.innerHTML = timeStr;
+
+			if (time <= 10) {
+				timer.classList.remove('highlight');
+
+				setTimeout(() => {
+					timer.classList.add('highlight');
+				}, 10);
+			}
+		};
+
+		window.updateTimer = (time) => {
+			remainingTime = time;
+			setTime(remainingTime);
+
+			if (timerInterval === null) {
+				timerInterval = setInterval(() => {
+					--remainingTime;
+					setTime(remainingTime);
+
+					if (currentRoundState === 3 && Math.round(remainingTime) === extractionTime - 1) {
+						gamePhase.innerHTML = 'Chopper departs in';
+
+						if (!isInfected) {
+							showNotice('Get to the chopper!');
+						}
+					}
+				}, 1000);
+			}
 		};
 	</script>
 </body>

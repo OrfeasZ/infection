@@ -45,10 +45,18 @@ function getReadyPlayers()
 end
 
 NetEvents:Subscribe(NetMessage.C2S_CLIENT_READY, function(player)
+	if not g_IsLevelSupported then
+		return
+	end
+
 	spawnHuman(player)
 	readyPlayers = readyPlayers + 1
 end)
 
 NetEvents:Subscribe('ready', function(player)
 	--readyPlayers = readyPlayers + 1
+end)
+
+Events:Subscribe('Level:Destroy', function()
+	readyPlayers = 0
 end)

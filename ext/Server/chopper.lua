@@ -13,7 +13,9 @@ function spawnChopper()
 		return
 	end
 
-	local pos = Vec3(440.207031, 192.954926, 19.943359)
+	local levelData = getLevelData(SharedUtils:GetLevelName())
+
+	local pos = levelData.chopperSpawn
 	--local pos = Vec3(5.987305, 174.783981, 18.863281)
 
 	local params = EntityCreationParams()

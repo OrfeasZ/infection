@@ -1,23 +1,40 @@
-local extractionReplays = require('replays/xp4_quake')
+local flares = nil
+local extractionPoint = nil
 
-local flarePos1 = Vec3(18.635742, 174.783005, 11)
-local flarePos2 = Vec3(18.635742, 174.783005, 19)
-local extractionPoint = Vec3(18.635742, 174.783005, 15)
+local extractionReplays = {
+	['levels/xp4_quake/xp4_quake'] = require('replays/xp4_quake')[1],
+}
+
+Events:Subscribe('Level:LoadResources', function(levelName)
+	flares = nil
+	extractionPoint = nil
+
+	if not g_IsLevelSupported then
+		print('Level is not supported')
+		return
+	end
+
+	local levelData = getLevelData(levelName)
+
+	flares = levelData.flares
+	extractionPoint = levelData.extraction
+
+	local lowerLevelName = levelName:lower()
+
+	Events:Dispatch('br:load', lowerLevelName, extractionReplays[lowerLevelName])
+end)
 
 function startExtraction()
-
 	NetEvents:Broadcast(NetMessage.S2C_EXTRACTION_STARTED, {
-		flares = { flarePos1, flarePos2 },
+		flares = flares,
 		point = extractionPoint
 	})
 
 	-- Start extraction sequence
-	Events:Dispatch('br:play', extractionReplays[1])
+	Events:Dispatch('br:play', SharedUtils:GetLevelName():lower())
 end
 
-function finishExtraction()
-	-- We need to figure out which of the humans are inside the extraction point.
-	-- Those are the humans that we consider as having survived.
+function getHumansInExtractionZone()
 	local survivors = {}
 
 	for _, player in pairs(PlayerManager:GetPlayers()) do
@@ -26,10 +43,17 @@ function finishExtraction()
 			local distance = player.soldier.transform.trans:Distance(extractionPoint)
 
 			if distance <= 4.5 then
-				table.insert(survivors, player.id)
+				table.insert(survivors, player.onlineId)
 			end
 		end
 	end
 
+	return survivors
+end
+
+function finishExtraction()
+	-- We need to figure out which of the humans are inside the extraction point.
+	-- Those are the humans that we consider as having survived.
+	local survivors = getHumansInExtractionZone()
 	NetEvents:Broadcast(NetMessage.S2C_GAME_ENDED, survivors)
 end

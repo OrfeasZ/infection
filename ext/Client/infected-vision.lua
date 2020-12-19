@@ -134,7 +134,7 @@ function setInfectedVision()
 	-- Add state to VE manager.
 	VisualEnvironmentManager:AddState(infectedVision)]]
 
-	WebUI:ExecuteJS('showInfectedOverlay()')
+	WebUI:ExecuteJS('showInfectedOverlay();')
 end
 
 function removeInfectedVision()
@@ -148,7 +148,7 @@ function removeInfectedVision()
 		infectedVision = nil
 	end
 
-	WebUI:ExecuteJS('hideInfectedOverlay()')
+	WebUI:ExecuteJS('hideInfectedOverlay();')
 end
 
 -- Remove the VE state when the mod is unloading.

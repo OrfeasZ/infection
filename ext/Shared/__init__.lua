@@ -1,4 +1,17 @@
-Events:Subscribe('Level:LoadResources', function()
+require('__shared/levels')
+
+g_IsLevelSupported = false
+
+Events:Subscribe('Level:LoadResources', function(levelName, gameMode)
+	g_IsLevelSupported = false
+
+	if not isLevelSupported(levelName, gameMode) then
+		error('This level and gamemode combination are not supported.')
+		return
+	end
+
+	g_IsLevelSupported = true
+
 	ResourceManager:MountSuperBundle('SpChunks')
 	ResourceManager:MountSuperBundle('Xp1Chunks')
 	ResourceManager:MountSuperBundle('Levels/XP1_002/XP1_002')
@@ -8,7 +21,7 @@ end)
 -- Inject SP_Bank and XP1_002 bundles. We need the SP_Bank one for the flares
 -- and the XP1_002 for the extraction helicopter.
 Hooks:Install('ResourceManager:LoadBundles', 100, function(hook, bundles, compartment)
-	if #bundles == 1 and bundles[1] == SharedUtils:GetLevelName() then
+	if g_IsLevelSupported and #bundles == 1 and bundles[1] == SharedUtils:GetLevelName() then
 		bundles = {
 			bundles[1],
 			'Levels/SP_Bank/SP_Bank',
@@ -16,12 +29,16 @@ Hooks:Install('ResourceManager:LoadBundles', 100, function(hook, bundles, compar
 			'Levels/XP1_002/XP1_002',
 			'Levels/XP1_002/CQ_S',
 		}
-		
+
 		hook:Pass(bundles, compartment)
 	end
 end)
 
 Hooks:Install('Terrain:Load', 100, function(hook, terrainName)
+	if not g_IsLevelSupported then
+		return
+	end
+
 	if terrainName == 'levels/xp1_002/terrain_2/gulfterrain_03.streamingtree' or
 		terrainName == 'levels/sp_bank/terrain/terrain_4km.streamingtree' then
 		print('Not loading terrain ' .. terrainName)
@@ -30,6 +47,10 @@ Hooks:Install('Terrain:Load', 100, function(hook, terrainName)
 end)
 
 Hooks:Install('VisualTerrain:Load', 100, function(hook, terrainName)
+	if not g_IsLevelSupported then
+		return
+	end
+
 	if terrainName == 'levels/xp1_002/terrain_2/gulfterrain_03.visual' or
 		terrainName == 'levels/sp_bank/terrain/terrain_4km.visual' then
 		print('Not loading visual terrain ' .. terrainName)
@@ -40,6 +61,10 @@ end)
 -- Add the XP1_002 CQL registry when the level loads so we can use
 -- assets from it (namely the helicopter).
 Events:Subscribe('Level:RegisterEntityResources', function(levelData)
+	if not g_IsLevelSupported then
+		return
+	end
+
 	local xp1cqlRegistry = RegistryContainer(ResourceManager:SearchForInstanceByGuid(Guid('4CA67086-4270-BDEC-C570-A5A709959189')))
 	ResourceManager:AddRegistry(xp1cqlRegistry, ResourceCompartment.ResourceCompartment_Game)
 
@@ -50,6 +75,10 @@ Events:Subscribe('Level:RegisterEntityResources', function(levelData)
 end)
 
 Events:Subscribe('Partition:Loaded', function(partition)
+	if not g_IsLevelSupported then
+		return
+	end
+
 	for _, instance in pairs(partition.instances) do
 		if instance.instanceGuid == Guid('705967EE-66D3-4440-88B9-FEEF77F53E77') then
 			-- Disable spawn protection.
@@ -61,6 +90,23 @@ Events:Subscribe('Partition:Loaded', function(partition)
 			local levelData = LevelData(instance)
 			levelData:MakeWritable()
 			levelData.maxVehicleHeight = 99999
+		elseif instance.instanceGuid == Guid('5FA66B8C-BE0E-3758-7DE9-533EA42F5364') then
+			--[[local bp = LogicPrefabBlueprint(instance)
+			bp:MakeWritable()
+
+			for i = #bp.objects, 1, -1 do
+				if bp.objects[i]:Is('PreRoundEntityData') then
+					print('Found pre round entity dahfduiasfa')
+					bp.objects:erase(i)
+				end
+			end
+
+			for i = #bp.eventConnections, 1, -1 do
+				if bp.eventConnections[i].source:Is('PreRoundEntityData') or bp.eventConnections[i].target:Is('PreRoundEntityData') then
+					print('Found connection at ' .. tostring(i))
+					bp.eventConnections:erase(i)
+				end
+			end]]
 		end
 	end
 end)
