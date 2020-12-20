@@ -10,7 +10,6 @@ Events:Subscribe('Level:LoadResources', function(levelName)
 	extractionPoint = nil
 
 	if not g_IsLevelSupported then
-		print('Level is not supported')
 		return
 	end
 

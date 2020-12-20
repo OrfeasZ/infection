@@ -91,22 +91,21 @@ Events:Subscribe('Partition:Loaded', function(partition)
 			levelData:MakeWritable()
 			levelData.maxVehicleHeight = 99999
 		elseif instance.instanceGuid == Guid('5FA66B8C-BE0E-3758-7DE9-533EA42F5364') then
-			--[[local bp = LogicPrefabBlueprint(instance)
+			-- Get rid of the PreRoundEntity. We don't need preround in this gamemode.
+			local bp = LogicPrefabBlueprint(instance)
 			bp:MakeWritable()
 
 			for i = #bp.objects, 1, -1 do
 				if bp.objects[i]:Is('PreRoundEntityData') then
-					print('Found pre round entity dahfduiasfa')
 					bp.objects:erase(i)
 				end
 			end
 
 			for i = #bp.eventConnections, 1, -1 do
 				if bp.eventConnections[i].source:Is('PreRoundEntityData') or bp.eventConnections[i].target:Is('PreRoundEntityData') then
-					print('Found connection at ' .. tostring(i))
 					bp.eventConnections:erase(i)
 				end
-			end]]
+			end
 		end
 	end
 end)

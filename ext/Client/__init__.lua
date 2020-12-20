@@ -105,7 +105,6 @@ Events:Subscribe('Extension:Loaded', function()
     -- Wait until we've entered the game to notify the server that we're ready.
     Events:Subscribe('Engine:Message', function(message)
         if message.type == MessageType.CoreEnteredIngameMessage then
-            print('Now ingame. Notifying server that we\'re ready.')
 			WebUI:ExecuteJS('showUI();')
             NetEvents:SendLocal(NetMessage.C2S_CLIENT_READY)
         end
@@ -165,7 +164,6 @@ NetEvents:Subscribe(NetMessage.S2C_GAME_ENDED, function(survivors)
 end)
 
 Events:Subscribe('Level:Destroy', function()
-	print('Level getting destroyed. Entering idle state.')
 	removeInfectedVision()
 	WebUI:ExecuteJS('hideUI();')
 end)

@@ -166,3 +166,21 @@ Events:Subscribe('Engine:Update', function(deltaTime)
 		end
 	end
 end)
+
+-- This starts the round manually, skipping any preround logic.
+-- It also requires the PreRoundEntity to be removed for it to work properly.
+Hooks:Install('EntityFactory:CreateFromBlueprint', 100, function(hook, blueprint, transform, variation, parentRepresentative)
+	if Blueprint(blueprint).name == 'Gameplay/Level_Setups/Complete_setup/Full_TeamDeathmatch_XP4' then
+		local tdmBus = hook:Call()
+
+		for _, entity in pairs(tdmBus.entities) do
+			if entity:Is('ServerInputRestrictionEntity') then
+				entity:FireEvent('Deactivate')
+			elseif entity:Is('ServerRoundOverEntity') then
+				entity:FireEvent('RoundStarted')
+			elseif entity:Is('EventGateEntity') and entity.data.instanceGuid == Guid('6436860A-13E5-4E1D-ADF8-845C3E4ABC30') then
+				entity:FireEvent('Close')
+			end
+		end
+	end
+end)

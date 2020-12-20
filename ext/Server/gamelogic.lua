@@ -1,6 +1,8 @@
 roundTimer = 0.0
 roundState = RoundState.Idle
+
 local roundUpdateTimer = 5.0
+local ticketUpdateTimer = 1.0
 
 -- Send round info to a player as soon as they join.
 NetEvents:Subscribe(NetMessage.C2S_CLIENT_READY, function(player)
@@ -93,6 +95,7 @@ end
 local function updateRoundActive(dt)
 	roundTimer = roundTimer - dt
 	roundUpdateTimer = roundUpdateTimer - dt
+	ticketUpdateTimer = ticketUpdateTimer - dt
 
 	-- Round phase has ended. We need to move to the next one.
 	if roundTimer <= 0.0 then
@@ -109,6 +112,13 @@ local function updateRoundActive(dt)
 
 	if roundState == RoundState.Extraction then
 		updateExtraction(dt)
+	end
+
+	-- Every second reset the tickets to 0 so the game never ends.
+	if ticketUpdateTimer <= 0.0 then
+		TicketManager:SetTicketCount(TeamId.Team1, 0)
+		TicketManager:SetTicketCount(TeamId.Team2, 0)
+		ticketUpdateTimer = 1.0
 	end
 
 	-- Broadcast round info to all players every 5 seconds.

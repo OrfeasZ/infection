@@ -195,7 +195,6 @@ Hooks:Install('UI:PushScreen', 100, function(hook, screen, priority, parentGraph
 
 	-- Remove the TDM hud (minimap, compass, etc.)
 	if asset.name == 'UI/Flow/Screen/HudTDMScreen' then
-		print('Patching TDM screen')
 		asset:MakeWritable()
 		asset.connections:clear()
 
