@@ -160,6 +160,9 @@ Events:Subscribe('Level:LoadResources', function()
 	roundState = RoundState.Idle
 
 	broadcastRoundInfo()
+
+	-- Set custom gamemode.
+	ServerUtils:SetCustomGameModeName('Infection')
 end)
 
 function infectPlayer(player)
