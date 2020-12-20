@@ -1,6 +1,6 @@
 require('__shared/levels')
 
-g_IsLevelSupported = false
+g_IsLevelSupported = isLevelSupported(SharedUtils:GetLevelName(), SharedUtils:GetCurrentGameMode())
 
 Events:Subscribe('Level:LoadResources', function(levelName, gameMode)
 	g_IsLevelSupported = false

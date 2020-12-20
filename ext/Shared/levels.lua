@@ -3,6 +3,10 @@ local g_LevelData = {
 }
 
 function isLevelSupported(levelName, gameMode)
+	if levelName == nil or gameMode == nil then
+		return false
+	end
+
 	local supportedLevels = {
 		['levels/xp4_quake/xp4_quake'] = { 'teamdeathmatchc0' },
 	}
