@@ -106,6 +106,14 @@ Events:Subscribe('Partition:Loaded', function(partition)
 					bp.eventConnections:erase(i)
 				end
 			end
+		elseif instance.instanceGuid == Guid('0D126546-B7A4-4C76-B41F-719B6BFB2053') then
+			-- Disable weapon pickups.
+			local data = KitPickupEntityData(instance)
+			data:MakeWritable()
+
+			data.enabled = false
+			data.allowPickup = false
+			data.timeToLive = 0.0
 		end
 	end
 end)

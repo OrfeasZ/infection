@@ -1,12 +1,17 @@
 {
 	"Name": "Infection",
 	"Authors": [ "NoFaTe" ],
+	"URL": "https://github.com/OrfeasZ/infection",
 	"Description": "Zombies 'n Stuff",
-	"Version": "0.0.3-alpha",
+	"Version": "0.0.4-alpha",
 	"HasWebUI": true,
 	"HasVeniceEXT": true,
+	"RequiredXPacks": [ 1, 4 ],
 	"Dependencies": {
-		"veniceext": "^1.0.6",
+		"veniceext": "^1.0.7",
 		"battlerecorder": "^0.0.2-alpha"
-	}
+	},
+	"Tags": [
+		"zombies"
+	]
 }
