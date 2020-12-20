@@ -17,6 +17,8 @@ local characterLightingGuid = Guid('A04E9F4F-463F-4309-87FD-72B71F0DD90B', 'D')
 local flashLight1PGuid = Guid('995E49EE-8914-4AFD-8EF5-59125CA8F9CD', 'D')
 local flashLight3PGuid = Guid('5FBA51D6-059F-4284-B5BB-6E20F145C064', 'D')
 
+local ingameMenuMPGraphGuid = Guid('E4386C4A-D5BB-DE8D-67DA-35456C8C51FD', 'D')
+
 local function patchCharacterLighting(instance)
 	if instance == nil then
 		return
@@ -134,6 +136,25 @@ local function patchFlashLight(instance)
 	spotLight.castShadowsMinLevel = QualityLevel.QualityLevel_Low
 end
 
+local function patchInGameMenuMPGraph(instance)
+	if instance == nil then
+		return
+	end
+
+	local graph = UIGraphAsset(instance)
+	graph:MakeWritable()
+
+	for i = #graph.connections, 1, -1 do
+		local connection = UINodeConnection(graph.connections[i])
+
+		-- We get rid of these connections so when a user presses the "Squad & Team"
+		-- or the "Suicide" buttons nothing happens.
+		if connection.sourcePort.name == 'ID_M_IGMMP_SQUAD' or connection.sourcePort.name == 'ID_M_IGMMP_SUICIDE' then
+			graph.connections:erase(i)
+		end
+	end
+end
+
 Events:Subscribe('Partition:Loaded', function(partition)
 	if not g_IsLevelSupported then
 		return
@@ -158,6 +179,8 @@ Events:Subscribe('Partition:Loaded', function(partition)
 			patchFlashLight(instance)
 		elseif instance.instanceGuid == characterLightingGuid then
 			patchCharacterLighting(instance)
+		elseif instance.instanceGuid == ingameMenuMPGraphGuid then
+			patchInGameMenuMPGraph(instance)
 		end
 	end
 end)
@@ -170,8 +193,32 @@ Hooks:Install('UI:PushScreen', 100, function(hook, screen, priority, parentGraph
 
 	local asset = UIScreenAsset(screen)
 
+	-- Remove the TDM hud (minimap, compass, etc.)
 	if asset.name == 'UI/Flow/Screen/HudTDMScreen' then
-		hook:Return(nil)
+		print('Patching TDM screen')
+		asset:MakeWritable()
+		asset.connections:clear()
+
+		-- Here we remove everything BUT the minimap because we remove it
+		-- through the UI:RenderMinimap hook. If we don't remove it here
+		-- it'll just render suspended in space.
+		for i = #asset.nodes, 1, -1 do
+			if not asset.nodes[i]:Is('WidgetNode') then
+				asset.nodes:erase(i)
+			elseif WidgetNode(asset.nodes[i]).name ~= 'Minimap' then
+				asset.nodes:erase(i)
+			end
+		end
+
 		return
 	end
 end)
+
+local function doNothing(hook)
+	hook:Return()
+end
+
+Hooks:Install('UI:CreateKillMessage', 100, doNothing)
+Hooks:Install('UI:DrawNametags', 100, doNothing)
+Hooks:Install('UI:DrawMoreNametags', 100, doNothing)
+Hooks:Install('UI:RenderMinimap', 100, doNothing)
